@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h2>Welcome to the Dashboard</h2>
+    <p>This is your private dashboard.</p>
+
+    <h3>Available Accommodations</h3>
+    <div id="accommodationsList"></div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h3>Proceed to Payment</h3>
+            <p>Your lease payment for this accommodation is required.</p>
+            <button id="payButton">Pay Now</button>
+        </div>
+    </div>
+
+    <button id="logoutButton">Logout</button>
+</div>
+
+<script>
+    let selectedAccommodationId = null;
+
+    // Fetch available accommodations and display them
+    fetch("/accommodations/available")
+        .then(response => response.json())
+        .then(data => {
+            const accommodationsList = document.getElementById("accommodationsList");
+            accommodationsList.innerHTML = "";
+
+            data.forEach(accommodation => {
+                const accommodationDiv = document.createElement("div");
+                accommodationDiv.classList.add("accommodation");
+
+                const imageUrl = "/images/default.jpg";
+
+                accommodationDiv.innerHTML = `
+                        <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
+                        <h4>Apartment ${accommodation.apartment_number} - ${accommodation.size}</h4>
+                        <p>Description: ${accommodation.description}</p>
+                        <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
+                    `;
+
+                accommodationsList.appendChild(accommodationDiv);
+            });
+        });
+
+    // Open the payment modal
+    function openModal(accommodationId) {
+        console.log("Opening modal for accommodation ID:", accommodationId); // Debugging line
+        selectedAccommodationId = accommodationId;
+        const modal = document.getElementById("paymentModal");
+        modal.style.display = "flex"; // Show the modal
+    }
+
+    // Close the payment modal
+    function closeModal() {
+        console.log("Closing modal"); // Debugging line
+        const modal = document.getElementById("paymentModal");
+        modal.style.display = "none"; // Hide the modal
+    }
+
+    // Handle the payment process
+    document.getElementById("payButton").addEventListener("click", function() {
+        if (selectedAccommodationId) {
+            fetch(`/accommodations/book`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    accommodationId: selectedAccommodationId,
+                    userId: sessionStorage.getItem("userId") // Assuming userId is stored in session
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Payment successful! Your accommodation is booked.");
+                        closeModal();
+                        window.location.reload(); // Refresh the page to update the list
+                    } else {
+                        alert("Payment failed. Please try again.");
+                    }
+                });
+        }
+    });
+
+    // Logout functionality
+    document.getElementById("logoutButton").addEventListener("click", function() {
+        fetch("/users/logout", { method: "POST" })
+            .then(() => {
+                sessionStorage.removeItem("loggedIn");
+                alert("You have been logged out.");
+                window.location.href = "login.html";
+            });
+    });
+</script>
+</body>
+</html>

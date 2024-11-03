@@ -1,0 +1,207 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Title */
+h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    padding: 10px;
+    margin: 0.5rem 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Button Styling */
+button {
+    padding: 10px;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Links */
+p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Accommodations List */
+#accommodationsList {
+    margin-top: 20px;
+    text-align: left;
+}
+
+/* Individual Accommodation Card */
+.accommodation {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Accommodation Image Styling */
+.apartment-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+/* Accommodation Details Styling */
+.accommodation-details {
+    flex: 1;
+}
+
+.accommodation h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.accommodation p {
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+/* Accommodation Container Title */
+h3 {
+    font-size: 1.5rem;
+    color: #4CAF50;
+    margin-top: 1.5rem;
+}
+
+/* Book Button Styling */
+.book-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.book-button:hover {
+    background-color: #0056b3;
+}
+
+/* Modal Overlay */
+.modal {
+    display: none; /* Ensure it's hidden by default */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/* Modal Content */
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Close Button */
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #aaa;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #000;
+}
+
+/* Pay Button Styling */
+#payButton {
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#payButton:hover {
+    background-color: #45a049;
+}
