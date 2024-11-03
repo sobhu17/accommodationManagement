@@ -44,13 +44,32 @@ public class AccommodationDaoImpl implements AccommodationDao {
             String insertAccommodationBookingSql = "INSERT INTO accommodation_bookings (accommodation_id, booking_id) VALUES (?, ?)";
             jdbcTemplate.update(insertAccommodationBookingSql, accommodationId, bookingId);
 
-            // Update accommodation availability
-            String updateAccommodationSql = "UPDATE accommodations SET availability = FALSE WHERE accommodation_id = ?";
-            jdbcTemplate.update(updateAccommodationSql, accommodationId);
+            // Create a lease payment record
+            Integer paymentId = createLeasePayment(1000.00); // Assuming a fixed lease amount, adjust as necessary
 
-            return true;
+            if (paymentId != null) {
+                // Insert into booking_payments table
+                String insertBookingPaymentSql = "INSERT INTO booking_payments (booking_id, payment_id) VALUES (?, ?)";
+                jdbcTemplate.update(insertBookingPaymentSql, bookingId, paymentId);
+
+                // Update accommodation availability
+                String updateAccommodationSql = "UPDATE accommodations SET availability = FALSE WHERE accommodation_id = ?";
+                jdbcTemplate.update(updateAccommodationSql, accommodationId);
+
+                return true;
+            }
         }
-
         return false;
+    }
+
+    private Integer createLeasePayment(double amount) {
+        // Insert into payments table
+        String insertPaymentSql = "INSERT INTO payments (amount, payment_date, payment_status, payment_type) VALUES (?, ?, ?, ?) RETURNING payment_id";
+        return jdbcTemplate.queryForObject(insertPaymentSql, new Object[]{
+                amount,
+                Date.valueOf(LocalDate.now()),
+                true, // Assuming payment is successful
+                "lease"
+        }, Integer.class);
     }
 }

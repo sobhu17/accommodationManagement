@@ -92,6 +92,7 @@ a:hover {
 .accommodation {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     padding: 15px;
@@ -117,6 +118,7 @@ a:hover {
 .accommodation h4 {
     color: #333;
     margin-bottom: 0.5rem;
+    font-weight: bold;
 }
 
 .accommodation p {
@@ -161,8 +163,6 @@ h3 {
     align-items: center;
 }
 
-
-
 /* Modal Content */
 .modal-content {
     background-color: #fff;
@@ -172,6 +172,7 @@ h3 {
     width: 100%;
     max-width: 400px;
     text-align: center;
+    position: relative;
 }
 
 /* Close Button */

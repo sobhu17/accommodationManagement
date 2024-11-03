@@ -27,11 +27,13 @@ public class UserService {
         return userDao.registerUser(user);
     }
 
-    public boolean loginUser(String email, String rawPassword) {
+    public User authenticateUser(String email, String rawPassword) {
         User user = userDao.findByEmail(email);
 
         // Check if user exists and the password matches
-        return user != null && passwordEncoder.matches(rawPassword, user.getPassword());
+        if (user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
+            return user; // Return the full User object if authentication is successful
+        }
+        return null; // Return null if authentication fails
     }
-
 }

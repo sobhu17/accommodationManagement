@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -29,13 +32,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        User authenticatedUser = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
 
-        if (isAuthenticated) {
-            return ResponseEntity.ok("Login successful!");
+        if (authenticatedUser != null) {
+            // Prepare the response with user details
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("user", Map.of(
+                    "user_id", authenticatedUser.getUser_id(),
+                    "name", authenticatedUser.getName(),
+                    "email", authenticatedUser.getEmail()
+            ));
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid email or password."));
         }
     }
 
@@ -44,6 +55,4 @@ public class UserController {
         session.invalidate(); // Destroys the current session
         return ResponseEntity.ok("Logged out successfully.");
     }
-
-
 }

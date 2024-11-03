@@ -44,11 +44,13 @@
                 const imageUrl = "/images/default.jpg";
 
                 accommodationDiv.innerHTML = `
-                        <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
+                    <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
+                    <div class="accommodation-details">
                         <h4>Apartment ${accommodation.apartment_number} - ${accommodation.size}</h4>
-                        <p>Description: ${accommodation.description}</p>
-                        <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
-                    `;
+                        <p class="description-text">Description: ${accommodation.description}</p>
+                    </div>
+                    <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
+                `;
 
                 accommodationsList.appendChild(accommodationDiv);
             });
@@ -56,22 +58,22 @@
 
     // Open the payment modal
     function openModal(accommodationId) {
-        console.log("Opening modal for accommodation ID:", accommodationId); // Debugging line
         selectedAccommodationId = accommodationId;
         const modal = document.getElementById("paymentModal");
-        modal.style.display = "flex"; // Show the modal
+        modal.style.display = "flex";
     }
 
     // Close the payment modal
     function closeModal() {
-        console.log("Closing modal"); // Debugging line
         const modal = document.getElementById("paymentModal");
-        modal.style.display = "none"; // Hide the modal
+        modal.style.display = "none";
     }
 
     // Handle the payment process
     document.getElementById("payButton").addEventListener("click", function() {
-        if (selectedAccommodationId) {
+        const userId = sessionStorage.getItem("userId");
+
+        if (selectedAccommodationId && userId) {
             fetch(`/accommodations/book`, {
                 method: "POST",
                 headers: {
@@ -79,7 +81,7 @@
                 },
                 body: JSON.stringify({
                     accommodationId: selectedAccommodationId,
-                    userId: sessionStorage.getItem("userId") // Assuming userId is stored in session
+                    userId: userId
                 })
             })
                 .then(response => {
@@ -90,7 +92,14 @@
                     } else {
                         alert("Payment failed. Please try again.");
                     }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred. Please try again.");
                 });
+        } else {
+            alert("Error: Please log in again.");
+            window.location.href = "login.html";
         }
     });
 
@@ -98,9 +107,13 @@
     document.getElementById("logoutButton").addEventListener("click", function() {
         fetch("/users/logout", { method: "POST" })
             .then(() => {
-                sessionStorage.removeItem("loggedIn");
+                sessionStorage.removeItem("userId");
                 alert("You have been logged out.");
                 window.location.href = "login.html";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
             });
     });
 </script>
