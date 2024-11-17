@@ -30,10 +30,11 @@ public class AccommodationDaoImpl implements AccommodationDao {
         LocalDate bookingDate = LocalDate.now();
         LocalDate startDate = bookingDate.plusWeeks(1);
         LocalDate endDate = startDate.plusYears(1);
+        LocalDate dueDate = startDate.plusMonths(1);
 
         // Insert into bookings table
-        String insertBookingSql = "INSERT INTO bookings (booking_date, start_date, end_date) VALUES (?, ?, ?) RETURNING booking_id";
-        Integer bookingId = jdbcTemplate.queryForObject(insertBookingSql, new Object[]{Date.valueOf(bookingDate), Date.valueOf(startDate), Date.valueOf(endDate)}, Integer.class);
+        String insertBookingSql = "INSERT INTO bookings (booking_date, start_date, end_date, due_date) VALUES (?, ?, ?, ?) RETURNING booking_id";
+        Integer bookingId = jdbcTemplate.queryForObject(insertBookingSql, new Object[]{Date.valueOf(bookingDate), Date.valueOf(startDate), Date.valueOf(endDate), Date.valueOf(dueDate)}, Integer.class);
 
         if (bookingId != null) {
             // Insert into user_bookings table
