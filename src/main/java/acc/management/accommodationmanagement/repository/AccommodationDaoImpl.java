@@ -2,10 +2,13 @@ package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.mappers.AccommodationRowMapper;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -72,5 +75,41 @@ public class AccommodationDaoImpl implements AccommodationDao {
                 true, // Assuming payment is successful
                 "lease"
         }, Integer.class);
+    }
+
+    @Override
+    public UserAccommodationDetails getUserAccommodationDetails(int userId) {
+
+        String sql = """
+        SELECT u.name AS user_name, u.email, a.size, a.apartment_number,
+               b.start_date, b.end_date, b.due_date,
+               CASE
+                   WHEN CURRENT_DATE > b.due_date THEN
+                       1900 + 100 * FLOOR((CURRENT_DATE - b.due_date)::INTEGER / 7)
+                   ELSE 1900
+               END AS current_rent
+        FROM users u
+        JOIN user_bookings ub ON u.user_id = ub.user_id
+        JOIN bookings b ON ub.booking_id = b.booking_id
+        JOIN accommodation_bookings ab ON b.booking_id = ab.booking_id
+        JOIN accommodations a ON ab.accommodation_id = a.accommodation_id
+        WHERE u.user_id = ?
+    """;
+
+        return jdbcTemplate.queryForObject(sql, new Object[]{userId}, this::mapToUserAccommodationDetails);
+    }
+
+
+    private UserAccommodationDetails mapToUserAccommodationDetails(ResultSet rs, int rowNum) throws SQLException {
+        UserAccommodationDetails details = new UserAccommodationDetails();
+        details.setUserName(rs.getString("user_name"));
+        details.setEmail(rs.getString("email"));
+        details.setAccommodationSize(rs.getString("size"));
+        details.setApartmentNumber(rs.getString("apartment_number"));
+        details.setLeaseStartDate(rs.getDate("start_date").toLocalDate());
+        details.setLeaseEndDate(rs.getDate("end_date").toLocalDate());
+        details.setDueDate(rs.getDate("due_date").toLocalDate());
+        details.setCurrentRent(rs.getDouble("current_rent"));
+        return details;
     }
 }

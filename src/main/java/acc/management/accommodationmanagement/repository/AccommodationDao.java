@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 
 import java.util.List;
 import java.util.Map;
@@ -10,4 +11,5 @@ public interface AccommodationDao {
 
     boolean bookAccommodation(int accommodationId, int userId);
 
+    UserAccommodationDetails getUserAccommodationDetails(int userId);
 }

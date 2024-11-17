@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.service;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.repository.AccommodationDao;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +22,9 @@ public class AccommodationService {
 
     public boolean bookAccommodation(int accommodationId, int userId) {
         return accommodationDao.bookAccommodation(accommodationId, userId);
+    }
+
+    public UserAccommodationDetails getUserAccommodationDetails(int userId) {
+        return accommodationDao.getUserAccommodationDetails(userId);
     }
 }

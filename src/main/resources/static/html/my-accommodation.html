@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Accommodation</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="dropdown">
+        <button class="dropbtn" onclick="toggleDropdown()">Menu</button>
+        <div class="dropdown-content">
+            <a href="/index.html">Dashboard</a>
+            <a href="/profile.html">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h2>My Accommodation Details</h2>
+
+    <!-- User Details -->
+    <h3>User Information</h3>
+    <table class="details-table" id="userDetailsTable">
+        <tbody>
+        <!-- User details will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <!-- Accommodation Details -->
+    <h3>Accommodation Information</h3>
+    <table class="details-table" id="accommodationDetailsTable">
+        <tbody>
+        <!-- Accommodation details will be dynamically inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const userId = sessionStorage.getItem("userId"); // Fetch the logged-in user's ID
+    if (!userId) {
+        window.location.href = "/login.html"; // Redirect to login if no userId is found
+    }
+
+    // Fetch and display user accommodation details
+    fetch(`/accommodations/my-accommodation/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                // Populate User Details Table
+                const userDetailsTable = document.getElementById("userDetailsTable");
+                userDetailsTable.innerHTML = `
+                    <tr><td><strong>Name:</strong></td><td>${data.userName}</td></tr>
+                    <tr><td><strong>Email:</strong></td><td>${data.email}</td></tr>
+                `;
+
+                // Populate Accommodation Details Table
+                const accommodationDetailsTable = document.getElementById("accommodationDetailsTable");
+                accommodationDetailsTable.innerHTML = `
+                    <tr><td><strong>Apartment Number:</strong></td><td>${data.apartmentNumber}</td></tr>
+                    <tr><td><strong>Size:</strong></td><td>${data.accommodationSize}</td></tr>
+                    <tr><td><strong>Lease Start Date:</strong></td><td>${data.leaseStartDate}</td></tr>
+                    <tr><td><strong>Lease End Date:</strong></td><td>${data.leaseEndDate}</td></tr>
+                    <tr><td><strong>Rent Due Date:</strong></td><td>${data.dueDate}</td></tr>
+                    <tr><td><strong>Current Rent:</strong></td><td>$${data.currentRent.toFixed(2)}</td></tr>
+                `;
+            } else {
+                alert("No accommodation details found.");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching accommodation details:", error);
+            alert("Failed to fetch accommodation details.");
+        });
+
+    // Toggle dropdown menu functionality
+    function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("active");
+    }
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", function (e) {
+        const dropdown = document.querySelector(".dropdown");
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("active");
+        }
+    });
+</script>
+
+</body>
+</html>

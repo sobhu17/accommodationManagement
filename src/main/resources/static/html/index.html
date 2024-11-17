@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
+
+<div class="navbar">
+    <div class="dropdown">
+        <button class="dropbtn" onclick="toggleDropdown()">Menu</button>
+        <div class="dropdown-content">
+            <a id="myAccommodationLink" href="#">My Accommodation</a>
+            <a href="/profile.html">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <h2>Welcome to the Dashboard</h2>
     <p>This is your private dashboard.</p>
@@ -46,6 +58,18 @@
 
 <script>
     let selectedAccommodationId = null;
+
+    // Redirect to My Accommodation page
+    document.getElementById("myAccommodationLink").addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent default link behavior
+        const userId = sessionStorage.getItem("userId");
+        if (userId) {
+            window.location.href = `/html/my-accommodation.html?userId=${userId}`;
+        } else {
+            alert("You need to log in first.");
+            window.location.href = "/login.html";
+        }
+    });
 
     // Fetch available accommodations and display them
     fetch("/accommodations/available")
@@ -96,6 +120,20 @@
     function closeCardModal() {
         document.getElementById("cardPaymentModal").style.display = "none";
     }
+
+    // Toggle dropdown menu functionality
+    function toggleDropdown() {
+        const dropdown = document.querySelector(".dropdown");
+        dropdown.classList.toggle("active");
+    }
+
+    // Close the dropdown if clicked outside
+    window.addEventListener("click", function (e) {
+        const dropdown = document.querySelector(".dropdown");
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("active");
+        }
+    });
 
     // Handle the Pay Now button in the initial payment modal
     document.getElementById("payButton").addEventListener("click", function() {

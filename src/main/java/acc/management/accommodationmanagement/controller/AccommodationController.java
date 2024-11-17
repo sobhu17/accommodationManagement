@@ -2,6 +2,7 @@ package acc.management.accommodationmanagement.controller;
 
 import acc.management.accommodationmanagement.Dtos.BookingRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.service.AccommodationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +34,15 @@ public class AccommodationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to book accommodation.");
         }
     }
+
+    @GetMapping("/my-accommodation/{userId}")
+    public ResponseEntity<UserAccommodationDetails> getUserAccommodationDetails(@PathVariable int userId) {
+        UserAccommodationDetails userDetails = accommodationService.getUserAccommodationDetails(userId);
+        if (userDetails != null) {
+            return ResponseEntity.ok(userDetails);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
 }
