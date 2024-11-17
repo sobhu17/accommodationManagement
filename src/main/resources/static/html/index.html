@@ -14,13 +14,30 @@
     <h3>Available Accommodations</h3>
     <div id="accommodationsList"></div>
 
-    <!-- Payment Modal -->
+    <!-- Initial Payment Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
             <h3>Proceed to Payment</h3>
             <p>Your lease payment for this accommodation is required.</p>
             <button id="payButton">Pay Now</button>
+        </div>
+    </div>
+
+    <!-- Card Payment Modal -->
+    <div id="cardPaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeCardModal()">&times;</span>
+            <h3>Enter Payment Details</h3>
+            <form id="cardPaymentForm">
+                <label for="cardNumber">Card Number:</label>
+                <input type="text" id="cardNumber" name="cardNumber" required pattern="\d{16}" placeholder="Enter 16-digit card number"><br>
+
+                <label for="amount">Amount:</label>
+                <input type="text" id="amount" name="amount" value="1000" readonly><br>
+
+                <button type="submit">Confirm Payment</button>
+            </form>
         </div>
     </div>
 
@@ -47,73 +64,78 @@
                     <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
                     <div class="accommodation-details">
                         <h4>Apartment ${accommodation.apartment_number} - ${accommodation.size}</h4>
-                        <p class="description-text">Description: ${accommodation.description}</p>
+                        <p>Description: ${accommodation.description}</p>
                     </div>
-                    <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
+                    <div class="book-button-container">
+                        <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
+                    </div>
                 `;
 
                 accommodationsList.appendChild(accommodationDiv);
             });
         });
 
-    // Open the payment modal
+    // Open the initial payment modal
     function openModal(accommodationId) {
         selectedAccommodationId = accommodationId;
-        const modal = document.getElementById("paymentModal");
-        modal.style.display = "flex";
+        document.getElementById("paymentModal").style.display = "flex";
     }
 
-    // Close the payment modal
+    // Close the initial payment modal
     function closeModal() {
-        const modal = document.getElementById("paymentModal");
-        modal.style.display = "none";
+        document.getElementById("paymentModal").style.display = "none";
     }
 
-    // Handle the payment process
-    document.getElementById("payButton").addEventListener("click", function() {
-        const userId = sessionStorage.getItem("userId");
+    // Open the card payment modal
+    function openCardModal() {
+        closeModal(); // Close the first modal
+        document.getElementById("cardPaymentModal").style.display = "flex";
+    }
 
-        if (selectedAccommodationId && userId) {
-            fetch(`/accommodations/book`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    accommodationId: selectedAccommodationId,
-                    userId: userId
-                })
+    // Close the card payment modal
+    function closeCardModal() {
+        document.getElementById("cardPaymentModal").style.display = "none";
+    }
+
+    // Handle the Pay Now button in the initial payment modal
+    document.getElementById("payButton").addEventListener("click", function() {
+        openCardModal();
+    });
+
+    // Handle the card payment form submission
+    document.getElementById("cardPaymentForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const cardNumber = document.getElementById("cardNumber").value;
+
+        fetch(`/accommodations/book`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                accommodationId: selectedAccommodationId,
+                userId: sessionStorage.getItem("userId"),
+                cardNumber: cardNumber,
+                amount: 1000,  // Fixed amount for lease payment
             })
-                .then(response => {
-                    if (response.ok) {
-                        alert("Payment successful! Your accommodation is booked.");
-                        closeModal();
-                        window.location.reload(); // Refresh the page to update the list
-                    } else {
-                        alert("Payment failed. Please try again.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("An error occurred. Please try again.");
-                });
-        } else {
-            alert("Error: Please log in again.");
-            window.location.href = "login.html";
-        }
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeCardModal();
+                    window.location.reload(); // Refresh the page to update the list
+                } else {
+                    closeCardModal();
+                    console.error("Payment failed. Please try again.");
+                }
+            });
     });
 
     // Logout functionality
     document.getElementById("logoutButton").addEventListener("click", function() {
         fetch("/users/logout", { method: "POST" })
             .then(() => {
-                sessionStorage.removeItem("userId");
-                alert("You have been logged out.");
+                sessionStorage.removeItem("loggedIn");
                 window.location.href = "login.html";
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred. Please try again.");
             });
     });
 </script>
