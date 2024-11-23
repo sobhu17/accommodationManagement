@@ -8,13 +8,21 @@
 </head>
 <body>
 
+<script>
+    // Session validation to restrict unauthorized access
+    const userId = sessionStorage.getItem("userId");
+    if (!userId) {
+        alert("You need to log in first.");
+        window.location.href = "/html/login.html";
+    }
+</script>
+
 <div class="navbar">
     <div class="dropdown">
         <button class="dropbtn" onclick="toggleDropdown()">Menu</button>
         <div class="dropdown-content">
             <a id="myAccommodationLink" href="#">My Accommodation</a>
-            <a href="/profile.html">Profile</a>
-            <a href="/logout">Logout</a>
+            <a id="logoutLink" href="#">Logout</a>
         </div>
     </div>
 </div>
@@ -52,8 +60,6 @@
             </form>
         </div>
     </div>
-
-    <button id="logoutButton">Logout</button>
 </div>
 
 <script>
@@ -62,9 +68,26 @@
     // Redirect to My Accommodation page
     document.getElementById("myAccommodationLink").addEventListener("click", function (event) {
         event.preventDefault(); // Prevent default link behavior
-        const userId = sessionStorage.getItem("userId");
         if (userId) {
-            window.location.href = `/html/my-accommodation.html?userId=${userId}`;
+            fetch(`/accommodations/my-accommodation/${userId}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("No accommodation found.");
+                    }
+                })
+                .then(data => {
+                    if (data && data.userName) {
+                        // Redirect to My Accommodation page if accommodation exists
+                        window.location.href = `/html/my-accommodation.html?userId=${userId}`;
+                    } else {
+                        alert("You don't have an accommodation yet. Please book an accommodation first!");
+                    }
+                })
+                .catch(() => {
+                    alert("You don't have an accommodation yet. Please book an accommodation first!");
+                });
         } else {
             alert("You need to log in first.");
             window.location.href = "/login.html";
@@ -168,12 +191,13 @@
             });
     });
 
-    // Logout functionality
-    document.getElementById("logoutButton").addEventListener("click", function() {
+    // Logout functionality (for dropdown logout button)
+    document.getElementById("logoutLink").addEventListener("click", function (event) {
+        event.preventDefault();
         fetch("/users/logout", { method: "POST" })
             .then(() => {
-                sessionStorage.removeItem("loggedIn");
-                window.location.href = "login.html";
+                sessionStorage.removeItem("userId");
+                window.location.href = "/html/login.html";
             });
     });
 </script>

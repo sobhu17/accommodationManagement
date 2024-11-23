@@ -12,4 +12,6 @@ public interface AccommodationDao {
     boolean bookAccommodation(int accommodationId, int userId);
 
     UserAccommodationDetails getUserAccommodationDetails(int userId);
+
+    boolean processRentPayment(int userId, double rentAmount);
 }

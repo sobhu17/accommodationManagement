@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.controller;
 
 import acc.management.accommodationmanagement.Dtos.BookingRequest;
+import acc.management.accommodationmanagement.Dtos.RentPaymentRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.service.AccommodationService;
@@ -42,6 +43,16 @@ public class AccommodationController {
             return ResponseEntity.ok(userDetails);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PostMapping("/pay-rent")
+    public ResponseEntity<String> payRent(@RequestBody RentPaymentRequest rentPaymentRequest) {
+        boolean isPaid = accommodationService.payRent(rentPaymentRequest.getUserId(), rentPaymentRequest.getRentAmount());
+        if (isPaid) {
+            return ResponseEntity.ok("Rent payment successful.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Rent payment failed.");
         }
     }
 

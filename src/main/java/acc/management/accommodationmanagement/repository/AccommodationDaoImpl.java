@@ -112,4 +112,61 @@ public class AccommodationDaoImpl implements AccommodationDao {
         details.setCurrentRent(rs.getDouble("current_rent"));
         return details;
     }
+
+
+    @Override
+    public boolean processRentPayment(int userId, double rentAmount) {
+        try {
+            // Fetch the booking ID associated with the user
+            String getBookingIdSql = """
+            SELECT b.booking_id 
+            FROM bookings b
+            JOIN user_bookings ub ON b.booking_id = ub.booking_id
+            WHERE ub.user_id = ?
+            """;
+            Integer bookingId = jdbcTemplate.queryForObject(getBookingIdSql, Integer.class, userId);
+
+            if (bookingId == null) {
+                throw new IllegalArgumentException("No booking found for user ID: " + userId);
+            }
+
+            // Insert payment into payments table
+            String insertPaymentSql = """
+            INSERT INTO payments (amount, payment_date, payment_status, payment_type) 
+            VALUES (?, ?, ?, ?) RETURNING payment_id
+            """;
+            Integer paymentId = jdbcTemplate.queryForObject(insertPaymentSql, Integer.class, rentAmount, Date.valueOf(LocalDate.now()), true, "rent");
+
+            if (paymentId == null) {
+                throw new IllegalStateException("Failed to create a payment record.");
+            }
+
+            // Associate the payment with the booking
+            String insertBookingPaymentSql = """
+            INSERT INTO booking_payments (booking_id, payment_id) 
+            VALUES (?, ?)
+            """;
+            jdbcTemplate.update(insertBookingPaymentSql, bookingId, paymentId);
+
+            // Update the next rent due date
+            String updateDueDateSql = """
+            UPDATE bookings 
+            SET due_date = due_date + INTERVAL '1 MONTH' 
+            WHERE booking_id = ?
+            """;
+            jdbcTemplate.update(updateDueDateSql, bookingId);
+
+            // Insert into user_payments table
+            String insertUserPaymentSql = """
+            INSERT INTO user_payments (user_id, payment_id)
+            VALUES (?, ?)
+            """;
+            jdbcTemplate.update(insertUserPaymentSql, userId, paymentId);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

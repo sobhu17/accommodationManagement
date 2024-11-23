@@ -27,4 +27,8 @@ public class AccommodationService {
     public UserAccommodationDetails getUserAccommodationDetails(int userId) {
         return accommodationDao.getUserAccommodationDetails(userId);
     }
+
+    public boolean payRent(int userId, double rentAmount) {
+        return accommodationDao.processRentPayment(userId, rentAmount);
+    }
 }
