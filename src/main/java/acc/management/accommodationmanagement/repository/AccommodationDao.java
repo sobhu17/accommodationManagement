@@ -14,4 +14,7 @@ public interface AccommodationDao {
     UserAccommodationDetails getUserAccommodationDetails(int userId);
 
     boolean processRentPayment(int userId, double rentAmount);
+
+    boolean fileComplaint(int userId, String description);
+
 }

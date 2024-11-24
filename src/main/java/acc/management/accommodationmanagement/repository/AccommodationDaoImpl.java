@@ -169,4 +169,47 @@ public class AccommodationDaoImpl implements AccommodationDao {
             return false;
         }
     }
+
+
+    @Override
+    public boolean fileComplaint(int userId, String description) {
+        try {
+            // Fetch the associated accommodation ID
+            String getAccommodationIdSql = """
+            SELECT a.accommodation_id
+            FROM accommodations a
+            JOIN accommodation_bookings ab ON a.accommodation_id = ab.accommodation_id
+            JOIN user_bookings ub ON ab.booking_id = ub.booking_id
+            WHERE ub.user_id = ?
+            """;
+            Integer accommodationId = jdbcTemplate.queryForObject(getAccommodationIdSql, Integer.class, userId);
+
+            if (accommodationId == null) {
+                throw new IllegalArgumentException("No accommodation found for user ID: " + userId);
+            }
+
+            // Insert the complaint
+            String insertComplaintSql = """
+            INSERT INTO complaints (description, status, created_at) 
+            VALUES (?, ?, ?) RETURNING complaint_id
+            """;
+            Integer complaintId = jdbcTemplate.queryForObject(insertComplaintSql, Integer.class, description, "pending", Date.valueOf(LocalDate.now()));
+
+            if (complaintId == null) {
+                throw new IllegalStateException("Failed to create complaint.");
+            }
+
+            // Link complaint with the accommodation
+            String insertAccommodationComplaintSql = """
+            INSERT INTO accommodation_complaints (accommodation_id, complaint_id) 
+            VALUES (?, ?)
+            """;
+            jdbcTemplate.update(insertAccommodationComplaintSql, accommodationId, complaintId);
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

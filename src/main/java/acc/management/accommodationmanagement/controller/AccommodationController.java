@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.controller;
 
 import acc.management.accommodationmanagement.Dtos.BookingRequest;
+import acc.management.accommodationmanagement.Dtos.ComplaintRequest;
 import acc.management.accommodationmanagement.Dtos.RentPaymentRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
@@ -55,5 +56,16 @@ public class AccommodationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Rent payment failed.");
         }
     }
+
+    @PostMapping("/file-complaint")
+    public ResponseEntity<String> fileComplaint(@RequestBody ComplaintRequest complaintRequest) {
+        boolean isFiled = accommodationService.fileComplaint(complaintRequest.getUserId(), complaintRequest.getDescription());
+        if (isFiled) {
+            return ResponseEntity.ok("Complaint filed successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to file complaint.");
+        }
+    }
+
 
 }

@@ -121,7 +121,8 @@
             color: #333;
         }
 
-        .modal-content input {
+        .modal-content input,
+        .modal-content textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -198,6 +199,7 @@
     <!-- Action Buttons -->
     <div class="action-buttons">
         <button id="payRentButton" class="action-button">Pay Rent</button>
+        <button id="fileComplaintButton" class="action-button">File Complaint</button>
     </div>
 
     <!-- Rent Payment Modal -->
@@ -211,8 +213,20 @@
 
                 <label for="rentAmount">Amount:</label>
                 <input type="text" id="rentAmount" name="rentAmount" readonly><br>
-
                 <button type="submit">Confirm Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Complaint Modal -->
+    <div id="complaintModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeComplaintModal()">&times;</span>
+            <h3>File Complaint</h3>
+            <form id="complaintForm">
+                <label for="complaintDescription">Description:</label>
+                <textarea id="complaintDescription" name="complaintDescription" rows="5" placeholder="Enter your complaint details" required></textarea><br>
+                <button type="submit">Submit Complaint</button>
             </form>
         </div>
     </div>
@@ -224,14 +238,12 @@
         .then(response => response.json())
         .then(data => {
             if (data) {
-                // Populate User Details Table
                 const userDetailsTable = document.getElementById("userDetailsTable");
                 userDetailsTable.innerHTML = `
                     <tr><td><strong>Name:</strong></td><td>${data.userName}</td></tr>
                     <tr><td><strong>Email:</strong></td><td>${data.email}</td></tr>
                 `;
 
-                // Populate Accommodation Details Table
                 const accommodationDetailsTable = document.getElementById("accommodationDetailsTable");
                 accommodationDetailsTable.innerHTML = `
                     <tr><td><strong>Apartment Number:</strong></td><td>${data.apartmentNumber}</td></tr>
@@ -245,10 +257,7 @@
                 alert("No accommodation details found.");
             }
         })
-        .catch(error => {
-            console.error("Error fetching accommodation details:", error);
-            alert("Failed to fetch accommodation details.");
-        });
+        .catch(error => console.error("Error fetching accommodation details:", error));
 
     // Open the rent payment modal
     document.getElementById("payRentButton").addEventListener("click", function () {
@@ -265,9 +274,19 @@
             .catch(error => console.error("Error fetching accommodation details:", error));
     });
 
+    // Open the complaint modal
+    document.getElementById("fileComplaintButton").addEventListener("click", function () {
+        document.getElementById("complaintModal").style.display = "flex";
+    });
+
     // Close rent payment modal
     function closeRentModal() {
         document.getElementById("rentPaymentModal").style.display = "none";
+    }
+
+    // Close complaint modal
+    function closeComplaintModal() {
+        document.getElementById("complaintModal").style.display = "none";
     }
 
     // Handle rent payment form submission
@@ -299,6 +318,32 @@
             .catch(error => console.error("Error processing rent payment:", error));
     });
 
+    // Handle complaint form submission
+    document.getElementById("complaintForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const description = document.getElementById("complaintDescription").value;
+
+        fetch(`/accommodations/file-complaint`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId,
+                description
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Complaint filed successfully!");
+                    closeComplaintModal();
+                    window.location.reload();
+                } else {
+                    alert("Failed to file complaint. Please try again.");
+                }
+            })
+            .catch(error => console.error("Error filing complaint:", error));
+    });
 
     // Redirect to Dashboard
     document.getElementById("dashboardLink").addEventListener("click", function (event) {

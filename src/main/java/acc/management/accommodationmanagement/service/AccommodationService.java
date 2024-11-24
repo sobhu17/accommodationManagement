@@ -31,4 +31,9 @@ public class AccommodationService {
     public boolean payRent(int userId, double rentAmount) {
         return accommodationDao.processRentPayment(userId, rentAmount);
     }
+
+    public boolean fileComplaint(int userId, String description) {
+        return accommodationDao.fileComplaint(userId, description);
+    }
+
 }
