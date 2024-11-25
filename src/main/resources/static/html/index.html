@@ -94,32 +94,51 @@
         }
     });
 
-    // Fetch available accommodations and display them
-    fetch("/accommodations/available")
-        .then(response => response.json())
+    // Fetch accommodations only if the user has not already booked one
+    fetch(`/accommodations/my-active-booking/${userId}`)
+        .then(response => {
+            if (response.status === 404) {
+                // No active booking, fetch available accommodations
+                return fetch("/accommodations/available")
+                    .then(response => response.json())
+                    .then(data => {
+                        const accommodationsList = document.getElementById("accommodationsList");
+                        accommodationsList.innerHTML = "";
+
+                        data.forEach(accommodation => {
+                            const accommodationDiv = document.createElement("div");
+                            accommodationDiv.classList.add("accommodation");
+
+                            const imageUrl = "/images/default.jpg";
+
+                            accommodationDiv.innerHTML = `
+                                <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
+                                <div class="accommodation-details">
+                                    <h4>Apartment ${accommodation.apartment_number} - ${accommodation.size}</h4>
+                                    <p>Description: ${accommodation.description}</p>
+                                </div>
+                                <div class="book-button-container">
+                                    <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
+                                </div>
+                            `;
+
+                            accommodationsList.appendChild(accommodationDiv);
+                        });
+                    });
+            } else {
+                return response.json();
+            }
+        })
         .then(data => {
-            const accommodationsList = document.getElementById("accommodationsList");
-            accommodationsList.innerHTML = "";
-
-            data.forEach(accommodation => {
-                const accommodationDiv = document.createElement("div");
-                accommodationDiv.classList.add("accommodation");
-
-                const imageUrl = "/images/default.jpg";
-
-                accommodationDiv.innerHTML = `
-                    <img src="${imageUrl}" alt="Accommodation Image" class="apartment-image">
-                    <div class="accommodation-details">
-                        <h4>Apartment ${accommodation.apartment_number} - ${accommodation.size}</h4>
-                        <p>Description: ${accommodation.description}</p>
-                    </div>
-                    <div class="book-button-container">
-                        <button class="book-button" onclick="openModal(${accommodation.accommodation_id})">Book</button>
-                    </div>
+            if (data && data.bookingId) {
+                const accommodationsList = document.getElementById("accommodationsList");
+                accommodationsList.innerHTML = `
+                    <p>You already have an active booking. Please visit the <a href="/html/my-accommodation.html">My Accommodation</a> page to view your details.</p>
                 `;
-
-                accommodationsList.appendChild(accommodationDiv);
-            });
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching accommodations:", error);
         });
 
     // Open the initial payment modal

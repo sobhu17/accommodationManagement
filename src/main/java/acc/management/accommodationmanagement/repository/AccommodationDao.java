@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Booking;
 import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 
@@ -21,4 +22,7 @@ public interface AccommodationDao {
     List<Complaint> findComplaintsByUserId(int userId);
 
     boolean updateComplaintDescription(int complaintId, String description);
+
+    Booking findActiveBookingByUserId(int userId);
+
 }

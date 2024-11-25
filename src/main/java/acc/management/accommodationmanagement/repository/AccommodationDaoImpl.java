@@ -2,8 +2,10 @@ package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.mappers.AccommodationRowMapper;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Booking;
 import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -242,4 +244,26 @@ public class AccommodationDaoImpl implements AccommodationDao {
         return rowsUpdated > 0;
     }
 
+    @Override
+    public Booking findActiveBookingByUserId(int userId) {
+        String sql = """
+        SELECT b.booking_id, b.booking_date, b.start_date, b.end_date, b.due_date
+        FROM bookings b
+        JOIN user_bookings ub ON b.booking_id = ub.booking_id
+        WHERE ub.user_id = ? AND CURRENT_DATE BETWEEN b.start_date AND b.end_date
+        """;
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{userId}, (rs, rowNum) -> {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("booking_id"));
+                booking.setBookingDate(rs.getDate("booking_date").toLocalDate());
+                booking.setStartDate(rs.getDate("start_date").toLocalDate());
+                booking.setEndDate(rs.getDate("end_date").toLocalDate());
+                booking.setDueDate(rs.getDate("due_date").toLocalDate());
+                return booking;
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null; // No active booking found
+        }
+    }
 }

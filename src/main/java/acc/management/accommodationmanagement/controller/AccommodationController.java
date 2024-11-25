@@ -5,6 +5,7 @@ import acc.management.accommodationmanagement.Dtos.ComplaintRequest;
 import acc.management.accommodationmanagement.Dtos.RentPaymentRequest;
 import acc.management.accommodationmanagement.Dtos.UpdateComplaintRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Booking;
 import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.service.AccommodationService;
@@ -82,6 +83,16 @@ public class AccommodationController {
             return ResponseEntity.ok("Complaint updated successfully.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update complaint.");
+        }
+    }
+
+    @GetMapping("/my-active-booking/{userId}")
+    public ResponseEntity<Booking> getActiveBooking(@PathVariable int userId) {
+        Booking activeBooking = accommodationService.getActiveBooking(userId);
+        if (activeBooking != null) {
+            return ResponseEntity.ok(activeBooking);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 

@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.service;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Booking;
 import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.repository.AccommodationDao;
@@ -44,5 +45,10 @@ public class AccommodationService {
     public boolean updateComplaintDescription(int complaintId, String description) {
         return accommodationDao.updateComplaintDescription(complaintId, description);
     }
+
+    public Booking getActiveBooking(int userId) {
+        return accommodationDao.findActiveBookingByUserId(userId);
+    }
+
 
 }
