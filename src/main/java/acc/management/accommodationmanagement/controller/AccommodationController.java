@@ -3,6 +3,7 @@ package acc.management.accommodationmanagement.controller;
 import acc.management.accommodationmanagement.Dtos.BookingRequest;
 import acc.management.accommodationmanagement.Dtos.ComplaintRequest;
 import acc.management.accommodationmanagement.Dtos.RentPaymentRequest;
+import acc.management.accommodationmanagement.Dtos.UpdateComplaintRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
 import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
@@ -74,5 +75,14 @@ public class AccommodationController {
         return ResponseEntity.ok(complaints);
     }
 
+    @PutMapping("/update-complaint")
+    public ResponseEntity<String> updateComplaint(@RequestBody UpdateComplaintRequest request) {
+        boolean isUpdated = accommodationService.updateComplaintDescription(request.getComplaintId(), request.getDescription());
+        if (isUpdated) {
+            return ResponseEntity.ok("Complaint updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to update complaint.");
+        }
+    }
 
 }

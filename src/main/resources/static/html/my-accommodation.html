@@ -32,12 +32,14 @@
             border: 1px solid #ddd;
             padding: 12px 15px;
             text-align: left;
+            word-wrap: break-word; /* Prevent overflow */
         }
 
         .details-table th {
             background-color: #4CAF50;
             color: white;
             font-weight: bold;
+            text-align: center;
         }
 
         .details-table tr:nth-child(even) {
@@ -50,6 +52,14 @@
 
         .details-table td strong {
             color: #333;
+        }
+
+        .details-table td textarea {
+            width: 100%; /* Ensure textarea fits within the cell */
+            resize: none; /* Disable resizing */
+            font-size: 0.9rem; /* Adjust font size */
+            padding: 5px;
+            box-sizing: border-box; /* Include padding and border in width calculation */
         }
 
         /* Buttons */
@@ -96,9 +106,10 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 400px;
+            max-width: 600px; /* Adjust modal width */
             text-align: center;
             position: relative;
+            overflow: hidden; /* Prevent overflow issues */
         }
 
         .close-button {
@@ -143,6 +154,32 @@
 
         .modal-content button:hover {
             background-color: #45a049;
+        }
+
+        /* Update button alignment */
+        .update-complaint-button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .update-complaint-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Adjust modal title */
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
         }
     </style>
 </head>
@@ -242,6 +279,7 @@
                     <th>Complaint ID</th>
                     <th>Description</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -301,6 +339,7 @@
     });
 
     // See Complaints Modal
+    // Open See Complaints Modal
     document.getElementById("seeComplaintsButton").addEventListener("click", function () {
         fetch(`/accommodations/user-complaints/${userId}`)
             .then(response => response.json())
@@ -308,17 +347,32 @@
                 if (data && data.length > 0) {
                     const complaintsTable = document.getElementById("complaintsTable").getElementsByTagName("tbody")[0];
                     complaintsTable.innerHTML = ""; // Clear table
-                    data.forEach(complaint => {
+                    data.forEach((complaint, index) => { // Add index for serial numbers
                         const row = complaintsTable.insertRow();
                         row.innerHTML = `
-                            <td>${complaint.id}</td>
-                            <td>${complaint.description}</td>
-                            <td>${complaint.status}</td>
-                        `;
+                        <td>${index + 1}</td> <!-- Serial number starts from 1 -->
+                        <td>
+                            <textarea class="complaint-description" data-complaint-id="${complaint.id}">${complaint.description}</textarea>
+                        </td>
+                        <td>${complaint.status}</td>
+                        <td>
+                            <button class="update-complaint-button" data-complaint-id="${complaint.id}">Update</button>
+                        </td>
+                    `;
                     });
+
+                    // Add event listeners for each update button
+                    document.querySelectorAll(".update-complaint-button").forEach(button => {
+                        button.addEventListener("click", function () {
+                            const complaintId = this.getAttribute("data-complaint-id");
+                            const description = document.querySelector(`textarea[data-complaint-id="${complaintId}"]`).value;
+                            updateComplaint(complaintId, description);
+                        });
+                    });
+
                     document.getElementById("seeComplaintsModal").style.display = "flex";
                 } else {
-                    alert("No pending complaints found.");
+                    alert("No complaints found.");
                 }
             })
             .catch(error => {
@@ -326,6 +380,26 @@
                 alert("Error fetching complaints.");
             });
     });
+
+    // Update Complaint
+    function updateComplaint(complaintId, description) {
+        fetch(`/accommodations/update-complaint`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ complaintId, description }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Complaint updated successfully!");
+                    window.location.reload();
+                } else {
+                    alert("Failed to update complaint. Please try again.");
+                }
+            })
+            .catch(error => console.error("Error updating complaint:", error));
+    }
 
     // Close See Complaints Modal
     function closeSeeComplaintsModal() {

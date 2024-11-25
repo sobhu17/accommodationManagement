@@ -20,4 +20,5 @@ public interface AccommodationDao {
 
     List<Complaint> findComplaintsByUserId(int userId);
 
+    boolean updateComplaintDescription(int complaintId, String description);
 }

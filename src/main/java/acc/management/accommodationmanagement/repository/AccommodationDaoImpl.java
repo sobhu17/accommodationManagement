@@ -228,13 +228,18 @@ public class AccommodationDaoImpl implements AccommodationDao {
 
         return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
             Complaint complaint = new Complaint();
-            complaint.setId(rowNum+1);
+            complaint.setId(rs.getInt("id"));
             complaint.setDescription(rs.getString("description"));
             complaint.setStatus(rs.getString("status"));
             return complaint;
         });
     }
 
-
+    @Override
+    public boolean updateComplaintDescription(int complaintId, String description) {
+        String sql = "UPDATE complaints SET description = ? WHERE complaint_id = ?";
+        int rowsUpdated = jdbcTemplate.update(sql, description, complaintId);
+        return rowsUpdated > 0;
+    }
 
 }

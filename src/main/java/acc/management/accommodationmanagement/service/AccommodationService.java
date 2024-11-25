@@ -41,5 +41,8 @@ public class AccommodationService {
         return accommodationDao.findComplaintsByUserId(userId);
     }
 
+    public boolean updateComplaintDescription(int complaintId, String description) {
+        return accommodationDao.updateComplaintDescription(complaintId, description);
+    }
 
 }
