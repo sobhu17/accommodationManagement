@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 
 import java.util.List;
@@ -16,5 +17,7 @@ public interface AccommodationDao {
     boolean processRentPayment(int userId, double rentAmount);
 
     boolean fileComplaint(int userId, String description);
+
+    List<Complaint> findComplaintsByUserId(int userId);
 
 }

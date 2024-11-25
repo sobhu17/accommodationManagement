@@ -4,6 +4,7 @@ import acc.management.accommodationmanagement.Dtos.BookingRequest;
 import acc.management.accommodationmanagement.Dtos.ComplaintRequest;
 import acc.management.accommodationmanagement.Dtos.RentPaymentRequest;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.service.AccommodationService;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,12 @@ public class AccommodationController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to file complaint.");
         }
+    }
+
+    @GetMapping("/user-complaints/{userId}")
+    public ResponseEntity<List<Complaint>> getUserComplaints(@PathVariable int userId) {
+        List<Complaint> complaints = accommodationService.getUserComplaints(userId);
+        return ResponseEntity.ok(complaints);
     }
 
 

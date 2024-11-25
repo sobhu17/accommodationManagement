@@ -200,6 +200,7 @@
     <div class="action-buttons">
         <button id="payRentButton" class="action-button">Pay Rent</button>
         <button id="fileComplaintButton" class="action-button">File Complaint</button>
+        <button id="seeComplaintsButton" class="action-button">See Complaints</button>
     </div>
 
     <!-- Rent Payment Modal -->
@@ -230,6 +231,25 @@
             </form>
         </div>
     </div>
+
+    <div id="seeComplaintsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeSeeComplaintsModal()">&times;</span>
+            <h3>Pending Complaints</h3>
+            <table class="details-table" id="complaintsTable">
+                <thead>
+                <tr>
+                    <th>Complaint ID</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -274,10 +294,43 @@
             .catch(error => console.error("Error fetching accommodation details:", error));
     });
 
+
     // Open the complaint modal
     document.getElementById("fileComplaintButton").addEventListener("click", function () {
         document.getElementById("complaintModal").style.display = "flex";
     });
+
+    // See Complaints Modal
+    document.getElementById("seeComplaintsButton").addEventListener("click", function () {
+        fetch(`/accommodations/user-complaints/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const complaintsTable = document.getElementById("complaintsTable").getElementsByTagName("tbody")[0];
+                    complaintsTable.innerHTML = ""; // Clear table
+                    data.forEach(complaint => {
+                        const row = complaintsTable.insertRow();
+                        row.innerHTML = `
+                            <td>${complaint.id}</td>
+                            <td>${complaint.description}</td>
+                            <td>${complaint.status}</td>
+                        `;
+                    });
+                    document.getElementById("seeComplaintsModal").style.display = "flex";
+                } else {
+                    alert("No pending complaints found.");
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching complaints:", error);
+                alert("Error fetching complaints.");
+            });
+    });
+
+    // Close See Complaints Modal
+    function closeSeeComplaintsModal() {
+        document.getElementById("seeComplaintsModal").style.display = "none";
+    }
 
     // Close rent payment modal
     function closeRentModal() {

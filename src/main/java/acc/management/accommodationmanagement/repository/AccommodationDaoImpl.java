@@ -2,6 +2,7 @@ package acc.management.accommodationmanagement.repository;
 
 import acc.management.accommodationmanagement.mappers.AccommodationRowMapper;
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -212,4 +213,28 @@ public class AccommodationDaoImpl implements AccommodationDao {
             return false;
         }
     }
+
+    @Override
+    public List<Complaint> findComplaintsByUserId(int userId) {
+        String sql = """
+        SELECT c.complaint_id AS id, c.description, c.status
+        FROM complaints c
+        JOIN accommodation_complaints ac ON c.complaint_id = ac.complaint_id
+        JOIN accommodation_bookings ab ON ac.accommodation_id = ab.accommodation_id
+        JOIN bookings b ON ab.booking_id = b.booking_id
+        JOIN user_bookings ub ON b.booking_id = ub.booking_id
+        WHERE ub.user_id = ? AND c.status = 'pending'
+    """;
+
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+            Complaint complaint = new Complaint();
+            complaint.setId(rowNum+1);
+            complaint.setDescription(rs.getString("description"));
+            complaint.setStatus(rs.getString("status"));
+            return complaint;
+        });
+    }
+
+
+
 }

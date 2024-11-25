@@ -1,6 +1,7 @@
 package acc.management.accommodationmanagement.service;
 
 import acc.management.accommodationmanagement.models.Accommodation;
+import acc.management.accommodationmanagement.models.Complaint;
 import acc.management.accommodationmanagement.models.UserAccommodationDetails;
 import acc.management.accommodationmanagement.repository.AccommodationDao;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,10 @@ public class AccommodationService {
     public boolean fileComplaint(int userId, String description) {
         return accommodationDao.fileComplaint(userId, description);
     }
+
+    public List<Complaint> getUserComplaints(int userId) {
+        return accommodationDao.findComplaintsByUserId(userId);
+    }
+
 
 }
