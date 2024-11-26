@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Complaints</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .navbar {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .navbar .back-button {
+            background-color: #fff;
+            color: #4CAF50;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .navbar .back-button:hover {
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .status-dropdown {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .update-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .update-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<script>
+    function goBack() {
+        window.location.href = "/html/admin-dashboard.html";
+    }
+
+    function updateComplaint(complaintId) {
+        const status = document.getElementById(`status-${complaintId}`).value;
+        fetch('/complaints/update-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ complaintId, status })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Complaint status updated successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update complaint status. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error updating complaint:', error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/complaints/all')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("complaintsTableBody");
+                data.forEach(complaint => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+            <td>${complaint.complaintId}</td>
+            <td>${complaint.description}</td>
+            <td>${complaint.status}</td>
+            <td>${complaint.apartmentNumber}</td>
+            <td>${complaint.accommodationDescription}</td>
+            <td>
+              <select id="status-${complaint.complaintId}" class="status-dropdown">
+                <option value="pending" ${complaint.status === "pending" ? "selected" : ""}>Pending</option>
+                <option value="resolved" ${complaint.status === "resolved" ? "selected" : ""}>Resolved</option>
+              </select>
+            </td>
+            <td>
+              <button class="update-button" onclick="updateComplaint(${complaint.complaintId})">Update</button>
+            </td>
+          `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching complaints:', error));
+    });
+</script>
+
+<div class="navbar">
+    <h2>Manage Complaints</h2>
+    <button class="back-button" onclick="goBack()">Back to Dashboard</button>
+</div>
+
+<div class="container">
+    <h1>Complaints</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Complaint ID</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Apartment Number</th>
+            <th>Accommodation Description</th>
+            <th>Update Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="complaintsTableBody"></tbody>
+    </table>
+</div>
+</body>
+</html>
