@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Reports</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .navbar {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h2 {
+      margin: 0;
+    }
+
+    .navbar .back-button {
+      background-color: #fff;
+      color: #4CAF50;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .navbar .back-button:hover {
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .chart {
+      width: 100%;
+      max-width: 500px;
+      max-height: 400px;
+    }
+
+    .info {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .info h4 {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+<script>
+  // Redirect to login page if the admin is not logged in
+  const isLoggedIn = sessionStorage.getItem("adminLoggedIn");
+  if (!isLoggedIn) {
+    window.location.href = "/html/admin-login.html";
+  }
+
+  function goBack() {
+    window.location.href = "/html/admin-dashboard.html";
+  }
+
+  function createChart(canvasId, labels, data, colors, title) {
+    const ctx = document.getElementById(canvasId).getContext("2d");
+    new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: data,
+            backgroundColor: colors,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: true,
+            text: title,
+          },
+        },
+        maintainAspectRatio: false, // Ensures chart fits within specified dimensions
+      },
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    fetch("/reports/summary")
+            .then((response) => response.json())
+            .then((data) => {
+              const {
+                families,
+                totalAccommodations,
+                vacant,
+                occupied,
+                totalComplaints,
+                pendingComplaints,
+                resolvedComplaints,
+              } = data;
+
+              document.getElementById("families").textContent = families;
+              document.getElementById("totalAccommodations").textContent = totalAccommodations;
+
+              createChart(
+                      "accommodationChart",
+                      ["Vacant", "Occupied"],
+                      [vacant, occupied],
+                      ["#4CAF50", "#f44336"],
+                      "Accommodation Status"
+              );
+
+              createChart(
+                      "complaintChart",
+                      ["Pending", "Resolved"],
+                      [pendingComplaints, resolvedComplaints],
+                      ["#FF9800", "#2196F3"],
+                      "Complaint Status"
+              );
+            })
+            .catch((err) => {
+              console.error("Error fetching report data:", err);
+            });
+  });
+</script>
+
+<div class="navbar">
+  <h2>View Reports</h2>
+  <button class="back-button" onclick="goBack()">Back to Dashboard</button>
+</div>
+
+<div class="container">
+  <h1>Reports</h1>
+  <div class="info">
+    <h4>Families Living: <span id="families">Loading...</span></h4>
+    <h4>Total Accommodations: <span id="totalAccommodations">Loading...</span></h4>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="accommodationChart" class="chart"></canvas>
+    <canvas id="complaintChart" class="chart"></canvas>
+  </div>
+</div>
+</body>
+</html>
