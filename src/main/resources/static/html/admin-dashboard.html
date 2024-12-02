@@ -102,6 +102,7 @@
 <div class="navbar">
   <h2>Admin Dashboard</h2>
   <button class="logout-button" onclick="logoutAdmin()">Logout</button>
+  <button class="reminder-button" onclick="sendRentReminders()">Send Rent Reminders</button>
 </div>
 
 <div class="container">
@@ -115,5 +116,22 @@
     </div>
   </div>
 </div>
+
+<script>
+  function sendRentReminders() {
+    fetch('/admin/send-reminders', {
+      method: 'POST',
+    })
+            .then(response => {
+              if (response.ok) {
+                alert('Rent reminder emails sent successfully!');
+              } else {
+                alert('Failed to send rent reminders.');
+              }
+            })
+            .catch(error => console.error('Error:', error));
+  }
+
+</script>
 </body>
 </html>

@@ -32,4 +32,11 @@ public class AdminController {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
     }
+
+    @PostMapping("/send-reminders")
+    public ResponseEntity<String> sendRentReminders() {
+        adminService.sendRentReminders();
+        return ResponseEntity.ok("Rent reminder emails sent successfully.");
+    }
+
 }
